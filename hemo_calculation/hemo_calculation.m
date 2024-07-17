@@ -58,18 +58,18 @@ for idx = 1:size(inputs_all,1)/4
     else
         
     end
-    figure(5)
-    for p=1:numOfSubplots
-        subplot(3,3,p);
-
-        h = imagesc(squeeze(hemo(p,:,17:49))',[0 100]);
-        set(gca,'YDir','normal')
-        colormap('jet');
-        colorbar
-    end
-    set(gcf, 'Position',  [100, 100, 600, 400])
+%     figure(5)
+%     for p=1:numOfSubplots
+%         subplot(3,3,p);
+% 
+%         h = imagesc(squeeze(hemo(p,:,17:49))',[0 100]);
+%         set(gca,'YDir','normal')
+%         colormap('jet');
+%         colorbar
+%     end
+%     set(gcf, 'Position',  [100, 100, 600, 400])
     max_input_hemo = max(hemo,[],'all');
-    saveas(gcf,[num2str(patient_hemo(idx + 9,1)) 'input_hemo.png'])
+%     saveas(gcf,[num2str(patient_hemo(idx + 9,1)) 'input_hemo.png'])
     
     volume74 = squeeze(outputs_all((idx-1)*4+1,1:7,:,:));
     volume78 = squeeze(outputs_all((idx-1)*4+2,1:7,:,:));
@@ -108,18 +108,18 @@ for idx = 1:size(inputs_all,1)/4
         end
     end
     
-    figure(10)
-    for p=1:numOfSubplots
-        subplot(3,3,p);
-
-        h = imagesc(squeeze(hemo(p,:,17:49))',[0 100]);
-        set(gca,'YDir','normal')
-        colormap('jet');
-        colorbar
-    end
-    set(gcf, 'Position',  [100, 100, 600, 400])
+%     figure(10)
+%     for p=1:numOfSubplots
+%         subplot(3,3,p);
+% 
+%         h = imagesc(squeeze(hemo(p,:,17:49))',[0 100]);
+%         set(gca,'YDir','normal')
+%         colormap('jet');
+%         colorbar
+%     end
+%     set(gcf, 'Position',  [100, 100, 600, 400])
     max_outputs_hemo = max(hemo,[],'all');
-    saveas(gcf,[num2str(patient_hemo(idx + 9,1)) 'output_hemo.png'])
+%     saveas(gcf,[num2str(patient_hemo(idx + 9,1)) 'output_hemo.png'])
     hemo_all = [hemo_all;[max_input_hemo,max_outputs_hemo]];
     if idx == 51
         a=1;
@@ -182,3 +182,79 @@ data = [hemo_all(benign_good,1)',hemo_all(benign_good,2)',hemo_all(mali_good,1)'
 labels = [zeros(1,length(hemo_all(benign_good,1))),1+zeros(1,length(hemo_all(benign_good,2))),2+zeros(1,length(hemo_all(mali_good,1))),3+zeros(1,length(hemo_all(mali_good,2)))];
 figure;boxplot(data,labels,'Labels',{'Input benign','Output benign','Input malignant','Output malignant'})
 title('Maximum hemoglobin')
+
+%% herogeneity
+hetero_idx = [17,2;23,3;25,2;32,2;34,2;51,2];
+x_fwhm_all_input = [];
+y_fwhm_all_input = [];
+x_fwhm_all_output = [];
+y_fwhm_all_output = [];
+for idx = 1:size(inputs_all,1)/4
+    if ismember((idx+9), hetero_idx(:,1))
+        start_layer = hetero_idx(find(hetero_idx(:,1)==(idx+9)),2);
+        W_740_780_808_830=2.303*[1.3029 0.4383; 1.1050 0.7360; 0.8040 0.9164; 0.7804 1.0507];
+        W_square=W_740_780_808_830'*W_740_780_808_830;
+        KK=W_square\W_740_780_808_830';
+        K=sum(KK);
+        
+        volume74 = squeeze(inputs_all((idx-1)*4+1,1:7,:,:));
+        volume78 = squeeze(inputs_all((idx-1)*4+2,1:7,:,:));
+        volume80 = squeeze(inputs_all((idx-1)*4+3,1:7,:,:));
+        volume83 = squeeze(inputs_all((idx-1)*4+4,1:7,:,:));
+        start_layer = patient_hemo(9+idx,6);
+        layers = patient_hemo(9+idx,5);
+        
+        numOfSubplots = size(volume74, 1);
+        for p=1:numOfSubplots
+            for i=1:64
+                for j=1:64
+                    total_oxy(p,j,i)=K(1)*volume74(p,j,i)+K(2)*volume78(p,j,i)+K(3)*volume80(p,j,i)+K(4)*volume83(p,j,i);
+                    deoxy(p,j,i)=KK(1,1)*volume74(p,j,i)+KK(1,2)*volume78(p,j,i)+KK(1,3)*volume80(p,j,i)+KK(1,4)*volume83(p,j,i);
+                    oxy(p,j,i)=KK(2,1)*volume74(p,j,i)+KK(2,2)*volume78(p,j,i)+KK(2,3)*volume80(p,j,i)+KK(2,4)*volume83(p,j,i);
+                end
+            end
+        end
+        hemo=(total_oxy)*1000;
+        x_fwhm = hemo(start_layer,:,33);
+        x_fwhm = resample(x_fwhm,33,64);
+        y_fwhm = hemo(start_layer,33,17:49);
+        x_fwhm_all_input = [x_fwhm_all_input;squeeze(x_fwhm)];
+        y_fwhm_all_input = [y_fwhm_all_input;transpose(squeeze(y_fwhm))];
+
+        volume74 = squeeze(outputs_all((idx-1)*4+1,1:7,:,:));
+        volume78 = squeeze(outputs_all((idx-1)*4+2,1:7,:,:));
+        volume80 = squeeze(outputs_all((idx-1)*4+3,1:7,:,:));
+        volume83 = squeeze(outputs_all((idx-1)*4+4,1:7,:,:));
+        
+        numOfSubplots = size(volume74, 1);
+        for p=1:numOfSubplots
+            for i=1:64
+                for j=1:64
+                    total_oxy(p,j,i)=K(1)*volume74(p,j,i)+K(2)*volume78(p,j,i)+K(3)*volume80(p,j,i)+K(4)*volume83(p,j,i);
+                    deoxy(p,j,i)=KK(1,1)*volume74(p,j,i)+KK(1,2)*volume78(p,j,i)+KK(1,3)*volume80(p,j,i)+KK(1,4)*volume83(p,j,i);
+                    oxy(p,j,i)=KK(2,1)*volume74(p,j,i)+KK(2,2)*volume78(p,j,i)+KK(2,3)*volume80(p,j,i)+KK(2,4)*volume83(p,j,i);
+                end
+            end
+        end
+        hemo=(total_oxy)*1000;
+        x_fwhm = hemo(start_layer,:,33);
+        x_fwhm = resample(x_fwhm,33,64);
+        y_fwhm = hemo(start_layer,33,17:49);
+        x_fwhm_all_output = [x_fwhm_all_output;squeeze(x_fwhm)];
+        y_fwhm_all_output = [y_fwhm_all_output;transpose(squeeze(y_fwhm))];
+
+    end
+  
+end
+
+xy_fwhm_all_input = sqrt(x_fwhm_all_input.*y_fwhm_all_input);
+xy_fwhm_all_output = sqrt(x_fwhm_all_output.*y_fwhm_all_output);
+figure;plot(transpose(x_fwhm_all_input));legend('17','23','25','33','35','52');title('X_input')
+figure;plot(transpose(y_fwhm_all_input));legend('17','23','25','33','35','52');title('Y_input')
+figure;plot(transpose(x_fwhm_all_output));legend('17','23','25','33','35','52');title('X_output')
+figure;plot(transpose(y_fwhm_all_output));legend('17','23','25','33','35','52');title('Y_output')
+mean_xy_fwhm_all_input = transpose(mean(xy_fwhm_all_input));
+mean_xy_fwhm_all_output = transpose(mean(xy_fwhm_all_output));
+std_xy_fwhm_all_input = transpose(std(xy_fwhm_all_input));
+std_xy_fwhm_all_output = transpose(std(xy_fwhm_all_output));
+figure;plot(mean_xy_fwhm_all_input);hold on;plot(mean_xy_fwhm_all_output);
