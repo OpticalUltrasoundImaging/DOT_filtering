@@ -383,7 +383,7 @@ def finetune_nn(model, train_data, test_data):
     return model, epoch_loss_all, avg_loss_all
 
 def saveModel():
-    path = "C:/Users/mingh/Box/3D DOT/models/DOT_filter_model.pth"
+    path = "./models/DOT_filter_model.pth"
     torch.save(model.state_dict(), path)
     
     
