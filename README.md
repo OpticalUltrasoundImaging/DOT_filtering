@@ -9,7 +9,7 @@ Traditional diffuse optical tomography (DOT) reconstructions suffer from image a
 
 ![Structure](https://github.com/OpticalUltrasoundImaging/DOT_filtering/blob/main/images/structure.png)
 ## Dataset
-Dataset and model can be found at (https://drive.google.com/drive/folders/1Nq1HQ3SK2xcLDb1UGh1EGjKDPJWGR_1a?usp=sharing)
+Dataset and model can be found [here](https://drive.google.com/drive/folders/1Nq1HQ3SK2xcLDb1UGh1EGjKDPJWGR_1a?usp=sharing)
 ## Requirements
 * Python: 3.7+
 * torch(pytorch): 1.10+
