@@ -390,7 +390,7 @@ def saveModel():
 def loading_data():
     # %%
     # load multiple target scan (can be removed)
-    data = scipy.io.loadmat('C:/Users/mingh/Box/3D DOT/simudata_wmeasurement/simudata_wmoreletter_woval_wshift_wsingle_wthreetar_wthreeshift_hist.mat')
+    data = scipy.io.loadmat('./dataset/simudata_dataset.mat')
     recons = data['volume7all']
     groundtruthes = data['real_reconall']
     weight_matrix = data['weight_matrixall']
@@ -419,7 +419,7 @@ def loading_data():
                                                  rtg1all, rtg2all, rtg3all, ua1all, ua2all, ua3all, maskall, test_size=0.15, random_state=42) # usually 21
      # %%               
     # load single scan dataset as validation
-    valdata = scipy.io.loadmat('C:/Users/mingh/Box/3D DOT/simudata_wmeasurement/finetune_wshallow_wmc_wyun_twohalfball_oval_star_cube_hist.mat')
+    valdata = scipy.io.loadmat('./dataset/finetune_dataset.mat')
     recons_ft = valdata['volume7all']
     groundtruthes_ft = valdata['real_reconall']
     weight_matrix_ft = valdata['weight_matrixall']
