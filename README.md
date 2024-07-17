@@ -1,5 +1,5 @@
 # DOT_filtering
-An automated pipeline for breast cancer diagnosis using US-assisted diffuse optical tomography.
+APU-Net: an attention-based physical U-Net model improves the image quality of DOT reconstruction by reducing DOT image artifacts and improving target depth profile.
 
 **by Minghao Xue (https://opticalultrasoundimaging.wustl.edu/)**
 
